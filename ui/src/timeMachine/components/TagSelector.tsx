@@ -145,6 +145,10 @@ class TagSelector extends PureComponent<Props> {
       )
     }
 
+    const placeholderText =
+      aggregateFunctionType === 'group'
+        ? 'Search group column values'
+        : `Search ${selectedKey} tag values`
     return (
       <>
         <BuilderCard.Menu testID={`tag-selector--container ${index}`}>
@@ -172,7 +176,7 @@ class TagSelector extends PureComponent<Props> {
           )}
           <Input
             value={valuesSearchTerm}
-            placeholder={`Search ${selectedKey} tag values`}
+            placeholder={placeholderText}
             className="tag-selector--search"
             onChange={this.handleValuesSearch}
           />
@@ -302,16 +306,10 @@ const mstp = (state: AppState, ownProps: OwnProps): StateProps => {
 
   const tags = getActiveQuery(state).builderConfig.tags
 
-  let emptyText: string
+  let emptyText: string = ''
   const previousTagSelector = tags[ownProps.index - 1]
-  if (
-    ownProps.index === 0 ||
-    !previousTagSelector ||
-    !previousTagSelector.key
-  ) {
-    emptyText = ''
-  } else {
-    emptyText = `Select a ${tags[ownProps.index - 1].key} value first`
+  if (previousTagSelector && previousTagSelector.key) {
+    emptyText = `Select a ${previousTagSelector.key} value first`
   }
 
   const {
