@@ -35,7 +35,6 @@ import DefaultDebouncer from 'src/shared/utils/debouncer'
 import {toComponentStatus} from 'src/shared/utils/toComponentStatus'
 import {
   getActiveQuery,
-  getActiveTagValues,
   getActiveTimeMachine,
   getIsInCheckOverlay,
 } from 'src/timeMachine/selectors'
@@ -48,6 +47,9 @@ import {
 } from 'src/types'
 
 const SEARCH_DEBOUNCE_MS = 500
+
+// We don't show these columns in results but they're able to be grouped on
+const ADDITIONAL_GROUP_BY_COLUMNS = ['_start', '_stop', '_time']
 
 interface StateProps {
   aggregateFunctionType: BuilderAggregateFunctionType
@@ -318,11 +320,10 @@ const mstp = (state: AppState, ownProps: OwnProps): StateProps => {
     aggregateFunctionType,
   } = tags[ownProps.index]
 
-  const values = getActiveTagValues(
-    activeQueryBuilder.tags,
-    aggregateFunctionType,
-    ownProps.index
-  )
+  let {values} = activeQueryBuilder.tags[ownProps.index]
+  if (aggregateFunctionType === 'group') {
+    values = [...ADDITIONAL_GROUP_BY_COLUMNS, ...tags.map(tag => tag.key)]
+  }
   const isInCheckOverlay = getIsInCheckOverlay(state)
 
   return {
