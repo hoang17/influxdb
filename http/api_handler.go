@@ -187,7 +187,9 @@ func NewAPIHandler(b *APIBackend, opts ...APIHandlerOptFn) *APIHandler {
 
 	h.Mount("/api/v2/swagger.json", newSwaggerLoader(b.Logger.With(zap.String("service", "swagger-loader")), b.HTTPErrorHandler))
 
-	taskBackend := NewTaskBackend(b.Logger.With(zap.String("handler", "task")), b)
+	taskLogger := b.Logger.With(zap.String("handler", "bucket"))
+	taskBackend := NewTaskBackend(taskLogger, b)
+	taskBackend.TaskService = authorizer.NewTaskService(taskLogger, b.TaskService)
 	taskHandler := NewTaskHandler(b.Logger, taskBackend)
 	taskHandler.UserResourceMappingService = internalURM
 	h.Mount(prefixTasks, taskHandler)
